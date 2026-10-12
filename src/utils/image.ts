@@ -100,3 +100,27 @@ export function renderEffect(indices: Uint8Array, palette: Rgb[], cols: number, 
   ctx.putImageData(imageData, 0, 0)
   return canvas.toDataURL('image/png')
 }
+
+/** 把已填格子渲染成画布，0 表示留空 */
+export function renderCells(
+  cells: Uint8Array,
+  palette: string[],
+  cols: number,
+  rows: number,
+  background: string,
+): HTMLCanvasElement {
+  const canvas = createCanvas(cols, rows)
+  const ctx = canvas.getContext('2d')!
+  ctx.fillStyle = background
+  ctx.fillRect(0, 0, cols, rows)
+  for (let i = 0; i < cells.length; i++) {
+    const value = cells[i]!
+    if (value === 0) continue
+    const color = palette[value - 1]
+    if (!color) continue
+    const col = i % cols
+    ctx.fillStyle = color
+    ctx.fillRect(col, (i - col) / cols, 1, 1)
+  }
+  return canvas
+}

@@ -210,6 +210,23 @@ async function submit() {
           <span class="note">需为 3 的倍数</span>
         </section>
 
+        <section class="field switch-row">
+          <span class="switch-text">
+            <span class="label">显示颜色编号</span>
+            <span class="note">在颜色面板和拼盘的格子上标注颜色编号</span>
+          </span>
+          <button
+            type="button"
+            class="switch"
+            :class="{ on: store.showNumbers }"
+            role="switch"
+            :aria-checked="store.showNumbers"
+            @click="store.showNumbers = !store.showNumbers"
+          >
+            <span class="knob" />
+          </button>
+        </section>
+
         <p v-if="gridSize" class="summary">
           将生成 {{ gridSize.cols }} × {{ gridSize.rows }} 个格子 · {{ colorCount }} 种颜色
         </p>
@@ -242,7 +259,7 @@ async function submit() {
   display: flex;
   flex-direction: column;
   width: min(520px, 100%);
-  max-height: min(780px, calc(100vh - 48px));
+  max-height: min(820px, calc(100vh - 48px));
   overflow: hidden;
   border-radius: 20px;
   background: linear-gradient(180deg, #1c2334, #141a28);
@@ -252,7 +269,7 @@ async function submit() {
 
 .head {
   position: relative;
-  padding: 22px 24px 14px;
+  padding: 18px 24px 12px;
 }
 
 .head h2 {
@@ -286,7 +303,7 @@ async function submit() {
 .body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   padding: 4px 24px 4px;
   overflow-y: auto;
 }
@@ -294,7 +311,7 @@ async function submit() {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .label {
@@ -303,7 +320,7 @@ async function submit() {
 }
 
 .control {
-  height: 42px;
+  height: 40px;
   padding: 0 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
@@ -327,14 +344,59 @@ async function submit() {
   color: rgba(232, 236, 244, 0.45);
 }
 
+.switch-row {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.switch-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.switch {
+  position: relative;
+  flex: none;
+  width: 46px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.switch.on {
+  background: #4f8cff;
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.switch.on .knob {
+  transform: translateX(20px);
+}
+
 .drop {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 136px;
-  padding: 12px;
+  min-height: 112px;
+  padding: 10px;
   border: 1.5px dashed rgba(255, 255, 255, 0.18);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.03);
@@ -367,7 +429,7 @@ async function submit() {
 
 .thumb {
   max-width: 100%;
-  max-height: 180px;
+  max-height: 120px;
   border-radius: 8px;
 }
 
@@ -385,7 +447,7 @@ async function submit() {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 24px 22px;
+  padding: 14px 24px 18px;
 }
 
 .message {

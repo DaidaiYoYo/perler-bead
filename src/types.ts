@@ -28,6 +28,8 @@ export interface BoardData {
   palette: string[]
   /** 效果图 dataURL */
   effectUrl: string
+  /** 每格的正确颜色（调色板下标） */
+  target: Uint8Array
 }
 
 /** 网格尺寸 */

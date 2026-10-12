@@ -11,6 +11,16 @@ export function rgbToHex(r: number, g: number, b: number): string {
   return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}`
 }
 
+/** 按底色明度取可读的文字颜色 */
+export function contrastColor(hex: string): string {
+  const value = Number.parseInt(hex.slice(1), 16)
+  const r = (value >> 16) & 0xff
+  const g = (value >> 8) & 0xff
+  const b = value & 0xff
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return luminance > 0.62 ? '#1b2436' : '#ffffff'
+}
+
 /** 红均值加权色差 */
 function distance(r: number, g: number, b: number, r2: number, g2: number, b2: number): number {
   const dr = r - r2

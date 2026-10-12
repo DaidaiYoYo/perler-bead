@@ -45,14 +45,23 @@ export const useGameStore = defineStore(
     const board = ref<BoardData | null>(null)
     /** 玩家填色，0 表示空，其余为调色板下标 + 1 */
     const cells = shallowRef<Uint8Array>(new Uint8Array(0))
+    /** 当前选中的格子 */
+    const selectedCell = ref<number | null>(null)
+    /** 调色板中高亮的颜色 */
     const selectedColor = ref<number | null>(null)
+    /** 是否显示颜色编号 */
+    const showNumbers = ref(true)
+    /** 提示动画进行中，此时拼盘不可编辑 */
+    const hinting = ref(false)
     const previewPos = ref({ x: 24, y: 24 })
-    /** 仅在需要落盘时自增 */
+    /** 自增以触发持久化与画布重绘 */
     const revision = ref(0)
 
     const hasGame = computed(() => {
       const current = board.value
-      return current !== null && cells.value.length === current.cols * current.rows
+      if (!current || !(current.target instanceof Uint8Array)) return false
+      const size = current.cols * current.rows
+      return cells.value.length === size && current.target.length === size
     })
 
     async function generate(next: GameConfig) {
@@ -71,29 +80,47 @@ export const useGameStore = defineStore(
         rows,
         palette: palette.map(([r, g, b]) => rgbToHex(r, g, b)),
         effectUrl: renderEffect(indices, palette, cols, rows),
+        target: indices,
       }
       cells.value = new Uint8Array(cols * rows)
+      selectedCell.value = null
       selectedColor.value = palette.length > 0 ? 0 : null
       revision.value++
     }
 
-    function selectColor(index: number) {
-      selectedColor.value = index
+    /** 选中格子，传 null 取消选中 */
+    function selectCell(index: number | null) {
+      if (hinting.value) return
+      if (index === null) {
+        selectedCell.value = null
+        return
+      }
+      if (index < 0 || index >= cells.value.length) return
+      selectedCell.value = index
+      const value = cells.value[index] ?? 0
+      if (value > 0) selectedColor.value = value - 1
     }
 
-    /** 给格子填色，返回是否发生变化 */
-    function paint(index: number): boolean {
-      const color = selectedColor.value
-      const data = cells.value
-      if (color === null || index < 0 || index >= data.length) return false
-      if (data[index] === color + 1) return false
-      data[index] = color + 1
+    /** 给选中的格子填色，返回是否发生变化 */
+    function applyColor(colorIndex: number): boolean {
+      const index = selectedCell.value
+      const palette = board.value?.palette
+      if (hinting.value || index === null || !palette) return false
+      if (colorIndex < 0 || colorIndex >= palette.length) return false
+      if (cells.value[index] === colorIndex + 1) return false
+      cells.value[index] = colorIndex + 1
+      selectedColor.value = colorIndex
+      revision.value++
       return true
     }
 
-    /** 提交一次持久化 */
-    function commit() {
-      revision.value++
+    function requestHint() {
+      if (hinting.value || !hasGame.value) return
+      hinting.value = true
+    }
+
+    function finishHint() {
+      hinting.value = false
     }
 
     function setPreviewPos(x: number, y: number) {
@@ -104,14 +131,18 @@ export const useGameStore = defineStore(
       config,
       board,
       cells,
+      selectedCell,
       selectedColor,
+      showNumbers,
+      hinting,
       previewPos,
       revision,
       hasGame,
       generate,
-      selectColor,
-      paint,
-      commit,
+      selectCell,
+      applyColor,
+      requestHint,
+      finishHint,
       setPreviewPos,
     }
   },
@@ -120,7 +151,7 @@ export const useGameStore = defineStore(
       key: 'perler-bead',
       storage: localStorage,
       serializer,
-      pick: ['config', 'board', 'cells', 'selectedColor', 'previewPos'],
+      pick: ['config', 'board', 'cells', 'selectedColor', 'showNumbers', 'previewPos'],
     },
   },
 )

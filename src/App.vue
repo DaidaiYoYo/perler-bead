@@ -4,6 +4,7 @@ import BeadBoard from '@/components/BeadBoard.vue'
 import ColorPalette from '@/components/ColorPalette.vue'
 import ConfigDialog from '@/components/ConfigDialog.vue'
 import PreviewPanel from '@/components/PreviewPanel.vue'
+import ToolBar from '@/components/ToolBar.vue'
 import { useGameStore } from '@/stores/game'
 
 const store = useGameStore()
@@ -33,6 +34,7 @@ const showConfig = ref(!store.hasGame)
           />
         </svg>
       </button>
+      <ToolBar />
     </template>
 
     <ConfigDialog v-if="showConfig" :closable="store.hasGame" @close="showConfig = false" />
